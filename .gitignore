@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+# 실행 중 생성되는 손상 백업
+state.json.corrupt
+*.tmp
