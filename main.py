@@ -53,6 +53,14 @@ def show_list(quizzes: list) -> None:
     print("-" * 40)
 
 
+def show_score(state: dict) -> None:
+    """점수 확인: 저장된 최고 점수를 보여준다."""
+    if state["best_score"] is None:
+        print("⚠️ 아직 퀴즈를 풀지 않았습니다. 먼저 퀴즈를 풀어 보세요.")
+        return
+    print(f"\n🏆 최고 점수: {state['best_score']}점")
+
+
 def main() -> None:
     quizzes = create_default_quizzes()
     state = {"best_score": None}
@@ -69,6 +77,8 @@ def main() -> None:
                 add_quiz(quizzes)
             elif choice == 3:
                 show_list(quizzes)
+            elif choice == 4:
+                show_score(state)
             else:
                 print(f"({MENU_ITEMS[choice - 1]}) 기능은 준비 중입니다.")
     except QuitGame:
