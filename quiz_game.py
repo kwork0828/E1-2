@@ -15,7 +15,7 @@ STATE_PATH = Path(__file__).resolve().parent / "state.json"
 
 
 class QuizGame:
-    MENU_ITEMS = ["퀴즈 풀기", "퀴즈 추가", "퀴즈 목록", "점수 확인", "종료"]
+    MENU_ITEMS = ["퀴즈 풀기", "퀴즈 추가", "퀴즈 목록", "점수 확인", "퀴즈 삭제", "점수 기록", "종료"]
 
     def __init__(self, quizzes: list = None, best_score=None):
         self.quizzes = quizzes if quizzes is not None else create_default_quizzes()
@@ -108,6 +108,20 @@ class QuizGame:
             return
         print(f"\n🏆 최고 점수: {self.best_score}점")
 
+    def delete_quiz(self) -> None:
+        """퀴즈 삭제(보너스): 번호로 골라 지우고 바로 파일에 반영한다."""
+        if not self.quizzes:
+            print("⚠️ 삭제할 퀴즈가 없습니다.")
+            return
+        self.show_list()
+        number = ask_int("삭제할 퀴즈 번호 (취소: 0): ", 0, len(self.quizzes))
+        if number == 0:
+            print("삭제를 취소했습니다.")
+            return
+        removed = self.quizzes.pop(number - 1)
+        self.save()  # 삭제 후 파일에 즉시 반영
+        print(f"🗑️ 삭제했습니다: {removed.question}")
+
     # ---------- 파일 저장/불러오기 (state.json, UTF-8) ----------
     def to_state(self) -> dict:
         return {"quizzes": [q.to_dict() for q in self.quizzes], "best_score": self.best_score}
@@ -153,7 +167,7 @@ class QuizGame:
     # ---------- 실행 루프 ----------
     def run(self) -> None:
         exit_number = len(self.MENU_ITEMS)
-        handlers = {1: self.play, 2: self.add_quiz, 3: self.show_list, 4: self.show_score}
+        handlers = {1: self.play, 2: self.add_quiz, 3: self.show_list, 4: self.show_score, 5: self.delete_quiz}
         try:
             while True:
                 self.print_menu()
