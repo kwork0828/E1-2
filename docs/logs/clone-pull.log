@@ -1,0 +1,30 @@
+$ git clone https://github.com/kwork0828/e1-2 e1-2-clone
+Cloning into 'e1-2-clone'...
+
+$ cd e1-2-clone && git config user.name / user.email 설정 후 README에 한 줄 추가
+$ git add README.md
+$ git commit -m "docs: clone 실습 - 복제본에서 README 한 줄 추가"
+[main 030b24d] docs: clone 실습 - 복제본에서 README 한 줄 추가
+ 1 file changed, 1 insertion(+)
+$ git push
+To https://github.com/kwork0828/e1-2
+   15c0f14..030b24d  main -> main
+
+$ cd e1-2   (기존 작업 디렉토리) / pull 전 README 마지막 줄
+Python 콘솔 퀴즈 게임. 최종 README는 마지막 커밋에서 완성합니다.
+$ git pull origin main
+ * branch            main       -> FETCH_HEAD
+   15c0f14..030b24d  main       -> origin/main
+Updating 15c0f14..030b24d
+Fast-forward
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+pull 후 README 마지막 줄 (복제본에서 push한 내용이 반영되었는지 확인)
+Python 콘솔 퀴즈 게임. 최종 README는 마지막 커밋에서 완성합니다.
+- clone 실습: 별도 디렉토리(e1-2-clone)에 복제해 이 줄을 추가하고 push했습니다.
+
+$ git --no-pager log --oneline -3
+030b24d docs: clone 실습 - 복제본에서 README 한 줄 추가
+15c0f14 merge: feat/bonus 브랜치를 main에 병합(힌트/랜덤/문제수 선택/삭제/기록)
+c3df53e feat: 모든 게임 기록(날짜/시간, 푼 문제 수, 정답 수, 점수) 저장과 점수 기록 메뉴 추가
