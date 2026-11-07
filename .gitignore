@@ -5,3 +5,5 @@ __pycache__/
 # 실행 중 생성되는 손상 백업
 state.json.corrupt
 *.tmp
+# 실행 중 자동 생성되는 사용자 데이터 (퀴즈/점수) - 저장소에는 올리지 않음
+state.json
