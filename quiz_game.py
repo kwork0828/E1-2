@@ -1,10 +1,16 @@
 """QuizGame 클래스: 게임 전체(메뉴, 퀴즈 풀기/추가/목록/점수)를 관리한다."""
+import json
+import os
+from pathlib import Path
+
 from default_data import create_default_quizzes
 from inputs import QuitGame, ask_int, ask_text
 from quiz import Quiz
 
 LINE = "=" * 40
 THIN = "-" * 40
+# 프로젝트 루트의 state.json (어느 폴더에서 실행해도 같은 파일을 쓰도록 이 파일 위치 기준)
+STATE_PATH = Path(__file__).resolve().parent / "state.json"
 
 
 class QuizGame:
@@ -82,6 +88,48 @@ class QuizGame:
             return
         print(f"\n🏆 최고 점수: {self.best_score}점")
 
+    # ---------- 파일 저장/불러오기 (state.json, UTF-8) ----------
+    def to_state(self) -> dict:
+        return {"quizzes": [q.to_dict() for q in self.quizzes], "best_score": self.best_score}
+
+    def save(self, path: Path = None) -> None:
+        """현재 상태를 JSON으로 저장한다. 임시 파일에 쓴 뒤 교체해 저장 도중 끊겨도 원본이 깨지지 않게 한다."""
+        path = path or STATE_PATH
+        tmp = path.with_suffix(".json.tmp")
+        try:
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(self.to_state(), f, ensure_ascii=False, indent=2)
+            os.replace(tmp, path)
+        except OSError as error:
+            print(f"⚠️ 저장에 실패했습니다: {error}")
+
+    @classmethod
+    def load(cls, path: Path = None) -> "QuizGame":
+        """state.json을 읽어 게임을 만든다. 파일이 없거나 손상돼도 항상 실행 가능해야 한다."""
+        path = path or STATE_PATH
+        if not path.exists():
+            print("ℹ️ 저장된 파일이 없어 기본 퀴즈 데이터를 사용합니다.")
+            return cls()
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
+            best = data["best_score"]
+            if best is not None and (isinstance(best, bool) or not isinstance(best, int) or not 0 <= best <= 100):
+                raise ValueError("best_score 값이 올바르지 않습니다.")
+        except (OSError, ValueError, KeyError, TypeError) as error:  # JSONDecodeError는 ValueError의 하위 클래스
+            print(f"⚠️ 데이터 파일이 손상되어 기본 퀴즈 데이터로 복구합니다. ({type(error).__name__})")
+            try:
+                os.replace(path, path.with_suffix(".json.corrupt"))  # 원인 분석용 백업
+            except OSError:
+                pass
+            game = cls()
+            game.save(path)
+            return game
+        score_text = "없음" if best is None else f"{best}점"
+        print(f"📂 저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고점수 {score_text})")
+        return cls(quizzes, best)
+
     # ---------- 실행 루프 ----------
     def run(self) -> None:
         exit_number = len(self.MENU_ITEMS)
@@ -96,3 +144,5 @@ class QuizGame:
                 handlers[choice]()
         except QuitGame:
             pass
+        finally:
+            self.save()  # 정상 종료/Ctrl+C/EOF 어느 경우든 가능한 범위에서 저장

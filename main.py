@@ -3,7 +3,7 @@ from quiz_game import QuizGame
 
 
 def main() -> None:
-    QuizGame().run()
+    QuizGame.load().run()
 
 
 if __name__ == "__main__":
