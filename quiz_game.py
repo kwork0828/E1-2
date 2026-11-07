@@ -2,6 +2,7 @@
 import json
 import os
 import random
+from datetime import datetime
 from pathlib import Path
 
 from default_data import create_default_quizzes
@@ -17,9 +18,10 @@ STATE_PATH = Path(__file__).resolve().parent / "state.json"
 class QuizGame:
     MENU_ITEMS = ["퀴즈 풀기", "퀴즈 추가", "퀴즈 목록", "점수 확인", "퀴즈 삭제", "점수 기록", "종료"]
 
-    def __init__(self, quizzes: list = None, best_score=None):
+    def __init__(self, quizzes: list = None, best_score=None, history: list = None):
         self.quizzes = quizzes if quizzes is not None else create_default_quizzes()
         self.best_score = best_score  # 아직 풀지 않았으면 None
+        self.history = history if history is not None else []  # 보너스: 모든 게임 기록
 
     # ---------- 화면 ----------
     def print_menu(self) -> None:
@@ -80,6 +82,9 @@ class QuizGame:
             self.best_score = score
             print("🎉 새로운 최고 점수입니다!")
         print(LINE)
+        self.history.append({"played_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                             "total": total, "correct": correct, "score": score})
+        self.save()  # 풀 때마다 바로 저장
 
     def add_quiz(self) -> None:
         """퀴즈 추가: 문제, 선택지 4개, 정답 번호를 입력받아 등록한다."""
@@ -122,9 +127,20 @@ class QuizGame:
         self.save()  # 삭제 후 파일에 즉시 반영
         print(f"🗑️ 삭제했습니다: {removed.question}")
 
+    def show_history(self) -> None:
+        """점수 기록(보너스): 날짜/시간, 푼 문제 수, 정답 수, 점수를 보여준다."""
+        if not self.history:
+            print("⚠️ 아직 게임 기록이 없습니다.")
+            return
+        print(f"\n📜 게임 기록 (총 {len(self.history)}회)\n")
+        print(THIN)
+        for number, item in enumerate(self.history, 1):
+            print(f"[{number}] {item['played_at']} | {item['total']}문제 중 {item['correct']}정답 | {item['score']}점")
+        print(THIN)
+
     # ---------- 파일 저장/불러오기 (state.json, UTF-8) ----------
     def to_state(self) -> dict:
-        return {"quizzes": [q.to_dict() for q in self.quizzes], "best_score": self.best_score}
+        return {"quizzes": [q.to_dict() for q in self.quizzes], "best_score": self.best_score, "history": self.history}
 
     def save(self, path: Path = None) -> None:
         """현재 상태를 JSON으로 저장한다. 임시 파일에 쓴 뒤 교체해 저장 도중 끊겨도 원본이 깨지지 않게 한다."""
@@ -151,6 +167,10 @@ class QuizGame:
             best = data["best_score"]
             if best is not None and (isinstance(best, bool) or not isinstance(best, int) or not 0 <= best <= 100):
                 raise ValueError("best_score 값이 올바르지 않습니다.")
+            history = data.get("history", [])  # 예전 파일(history 없음)과도 호환
+            if not isinstance(history, list) or not all(
+                    isinstance(h, dict) and {"played_at", "total", "correct", "score"} <= h.keys() for h in history):
+                raise ValueError("history 형식이 올바르지 않습니다.")
         except (OSError, ValueError, KeyError, TypeError) as error:  # JSONDecodeError는 ValueError의 하위 클래스
             print(f"⚠️ 데이터 파일이 손상되어 기본 퀴즈 데이터로 복구합니다. ({type(error).__name__})")
             try:
@@ -162,12 +182,12 @@ class QuizGame:
             return game
         score_text = "없음" if best is None else f"{best}점"
         print(f"📂 저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고점수 {score_text})")
-        return cls(quizzes, best)
+        return cls(quizzes, best, history)
 
     # ---------- 실행 루프 ----------
     def run(self) -> None:
         exit_number = len(self.MENU_ITEMS)
-        handlers = {1: self.play, 2: self.add_quiz, 3: self.show_list, 4: self.show_score, 5: self.delete_quiz}
+        handlers = {1: self.play, 2: self.add_quiz, 3: self.show_list, 4: self.show_score, 5: self.delete_quiz, 6: self.show_history}
         try:
             while True:
                 self.print_menu()
