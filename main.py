@@ -41,6 +41,18 @@ def add_quiz(quizzes: list) -> None:
     print("✅ 퀴즈가 추가되었습니다!")
 
 
+def show_list(quizzes: list) -> None:
+    """퀴즈 목록: 등록된 문제를 번호와 함께 보여준다."""
+    if not quizzes:
+        print("⚠️ 등록된 퀴즈가 없습니다.")
+        return
+    print(f"\n📋 등록된 퀴즈 목록 (총 {len(quizzes)}개)\n")
+    print("-" * 40)
+    for number, quiz in enumerate(quizzes, 1):
+        print(f"[{number}] {quiz.question}")
+    print("-" * 40)
+
+
 def main() -> None:
     quizzes = create_default_quizzes()
     state = {"best_score": None}
@@ -55,6 +67,8 @@ def main() -> None:
                 solve(quizzes, state)
             elif choice == 2:
                 add_quiz(quizzes)
+            elif choice == 3:
+                show_list(quizzes)
             else:
                 print(f"({MENU_ITEMS[choice - 1]}) 기능은 준비 중입니다.")
     except QuitGame:
