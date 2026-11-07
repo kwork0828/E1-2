@@ -30,32 +30,47 @@ class QuizGame:
         print(LINE)
 
     # ---------- 기능 ----------
-    @staticmethod
-    def calc_score(correct: int, total: int) -> int:
-        """100점 만점으로 환산한다. (문제 수가 달라도 점수를 비교할 수 있게)"""
-        return round(correct / total * 100) if total else 0
-
     def play(self) -> None:
-        """퀴즈 풀기: 모든 문제를 출제하고 결과/최고 점수를 보여준다."""
+        """퀴즈 풀기: 모든 문제를 출제하고 결과/최고 점수를 보여준다.
+
+        문제당 배점은 100/문제수. 힌트(h)를 보고 맞히면 그 문제는 배점의 절반만 받는다.
+        """
         if not self.quizzes:
             print("⚠️ 등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가하세요.")
             return
         total = len(self.quizzes)
+        per_question = 100 / total
         print(f"\n📝 퀴즈를 시작합니다! (총 {total}문제)\n")
         correct = 0
+        hints_used = 0
+        earned = 0.0
         for number, quiz in enumerate(self.quizzes, 1):
             print(THIN)
             quiz.show(number)
-            user_answer = ask_int("정답 입력: ", 1, Quiz.CHOICE_COUNT)
+            used_hint = False
+            while True:
+                if quiz.hint and not used_hint:
+                    user_answer = ask_int("정답 입력 (힌트 보기: h): ", 1, Quiz.CHOICE_COUNT, allow=("h",))
+                else:
+                    user_answer = ask_int("정답 입력: ", 1, Quiz.CHOICE_COUNT)
+                if user_answer == "h":
+                    print(f"💡 힌트: {quiz.hint}\n   (힌트를 쓰면 이 문제 배점이 절반이 됩니다)")
+                    used_hint = True
+                    hints_used += 1
+                    continue
+                break
             if quiz.is_correct(user_answer):
                 correct += 1
+                earned += per_question * (0.5 if used_hint else 1)
                 print("✅ 정답입니다!\n")
             else:
                 print(f"❌ 오답입니다. 정답은 {quiz.answer}번 ({quiz.choices[quiz.answer - 1]}) 입니다.\n")
-        score = self.calc_score(correct, total)
+        score = round(earned)
         print(THIN)
         print(LINE)
         print(f"🏆 결과: {total}문제 중 {correct}문제 정답! ({score}점)")
+        if hints_used:
+            print(f"💡 힌트 {hints_used}회 사용 (감점 반영됨)")
         if self.best_score is None or score > self.best_score:
             self.best_score = score
             print("🎉 새로운 최고 점수입니다!")
