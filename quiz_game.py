@@ -1,6 +1,7 @@
 """QuizGame 클래스: 게임 전체(메뉴, 퀴즈 풀기/추가/목록/점수)를 관리한다."""
 import json
 import os
+import random
 from pathlib import Path
 
 from default_data import create_default_quizzes
@@ -38,13 +39,17 @@ class QuizGame:
         if not self.quizzes:
             print("⚠️ 등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가하세요.")
             return
-        total = len(self.quizzes)
+        available = len(self.quizzes)
+        # 보너스: 문제 수 선택 + 랜덤 출제 (random.sample은 중복 없이 무작위로 고른다)
+        count = available if available == 1 else ask_int(f"풀 문제 수를 선택하세요 (1-{available}): ", 1, available)
+        selected = random.sample(self.quizzes, count)
+        total = count
         per_question = 100 / total
         print(f"\n📝 퀴즈를 시작합니다! (총 {total}문제)\n")
         correct = 0
         hints_used = 0
         earned = 0.0
-        for number, quiz in enumerate(self.quizzes, 1):
+        for number, quiz in enumerate(selected, 1):
             print(THIN)
             quiz.show(number)
             used_hint = False
