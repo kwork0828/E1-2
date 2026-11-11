@@ -93,6 +93,7 @@ class QuizGame:
         choices = [ask_text(f"선택지 {i}: ") for i in range(1, Quiz.CHOICE_COUNT + 1)]
         answer = ask_int(f"정답 번호 (1-{Quiz.CHOICE_COUNT}): ", 1, Quiz.CHOICE_COUNT)
         self.quizzes.append(Quiz(question, choices, answer))
+        self.save()  # 추가한 직후 바로 파일에 저장 (종료할 때까지 기다리지 않는다)
         print("✅ 퀴즈가 추가되었습니다!")
 
     def show_list(self) -> None:
