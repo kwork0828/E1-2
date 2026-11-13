@@ -79,7 +79,7 @@ cd E1-2
 python main.py        # Windows는 python, macOS/Linux는 python3
 ```
 - 처음 실행하면 `state.json`이 없으므로 기본 퀴즈 49개로 시작하고, 종료할 때 `state.json`이 자동 생성됩니다.
-- `state.json`이 이미 있으면 기본 데이터 대신 그 파일을 읽습니다. 기본 문제로 다시 시작하려면 `state.json`을 지우고 실행하세요. (최고 점수와 기록도 함께 초기화됩니다.)
+- `state.json`이 이미 있으면 그 파일을 읽어 이어서 합니다. 예전 버전 기본 문제로 저장된 파일이면 **기본 문제만 자동으로 새 버전으로 교체**하고, 직접 추가한 퀴즈·최고 점수·기록은 그대로 둡니다. 따로 파일을 지울 필요가 없습니다.
 - 작업 도중 메뉴로 돌아가려면 `b`, 프로그램을 끝내려면 메뉴 `7. 종료` 또는 `Ctrl+C`(저장 후 안전 종료).
 
 <details>
@@ -214,12 +214,14 @@ E1-2/
 
 | 키 | 타입 | 설명 |
 |---|---|---|
+| `default_version` | int | 기본 문제 세트 버전(현재 2). 예전 파일에는 없으며, 없거나 낮으면 기본 문제를 자동 교체 |
 | `quizzes` | list | 퀴즈 목록. 각 항목은 `question`(str), `choices`(str 4개 리스트), `answer`(int, **1~4 번호**), `hint`(선택, str) |
 | `best_score` | int 또는 null | 최고 점수(0~100). 아직 안 풀었으면 `null` |
 | `history` | list | 보너스. `played_at`, `total`, `correct`, `score` (이 키가 없는 예전 파일도 읽힘) |
 
 ```json
 {
+  "default_version": 2,
   "quizzes": [
     {"question": "Python의 창시자는?", "choices": ["Guido van Rossum", "Linus Torvalds", "Bjarne Stroustrup", "James Gosling"], "answer": 1, "hint": "네덜란드 출신 프로그래머입니다. 이름이 G로 시작해요."}
   ],
@@ -337,6 +339,7 @@ def paint(text, *styles):
 | 작업 도중 `b` / `뒤로` 입력 | `GoBack` 예외 → 진행 중이던 내용은 반영하지 않고 **메인 메뉴로** |
 | `Ctrl+C` / 입력 스트림 종료(EOF) | `QuitGame` 예외로 받아 안내 → **저장 후 안전 종료** (트레이스백 없음) |
 | `state.json` 없음 (첫 실행) | 기본 퀴즈 49개로 시작 |
+| `state.json`이 예전 기본 문제 버전 | 기본 문제만 새 버전으로 자동 교체, 직접 추가한 퀴즈·점수·기록은 유지 |
 | `state.json` 손상/형식 오류 | 안내 후 손상 파일을 `state.json.corrupt`로 백업, 기본 데이터로 **복구** |
 | 퀴즈가 하나도 없음 | 풀기/목록/삭제에서 안내 |
 | 아직 퀴즈를 안 풀고 점수 확인 | 안내 |
@@ -528,6 +531,7 @@ def ask_int(prompt, low, high, allow=()):
 | 5 | 뒤로가기를 화면마다 따로 처리하면 코드가 반복됨 | 풀기·추가·삭제 모두 입력 칸이 여러 개 | 입력 함수 `ask()` 한 곳에서 `GoBack` 예외를 던지고, `run()`에서 한 번만 받음 |
 | 6 | 두 칸 메뉴가 한글 때문에 줄이 안 맞음 | 한글은 화면에서 2칸, 영문은 1칸인데 `len()`은 둘 다 1로 셈 | `unicodedata.east_asian_width()`로 실제 칸 수를 계산해 공백을 채움 (`ui.pad`) |
 | 7 | 오른쪽 테두리가 터미널마다 어긋날 수 있음 | 터미널마다 특수문자 폭이 다름 | 왼쪽 테두리만 쓰는 열린 상자 모양으로 설계 |
+| 8 | 기본 문제를 바꿔도 예전 `state.json`이 있으면 옛 문제가 계속 나옴 | 저장 파일이 있으면 기본 데이터 대신 파일을 읽기 때문 | `state.json`에 `default_version`을 저장하고, 버전이 낮으면 기본 문제만 자동 교체 (사용자 데이터 유지) |
 
 <details>
 <summary>🎤 설명 노트</summary>
@@ -577,4 +581,5 @@ print(f"❌ 오답입니다. 정답은 {quiz.answer}번 ({quiz.choices[quiz.answ
 - **뒤로가기를 누르면 푸는 중이던 점수는요?** 기록하지 않습니다. 점수와 기록은 게임을 끝까지 풀었을 때만 저장됩니다.
 - **`random.sample`은 `shuffle`과 뭐가 다른가요?** `sample`은 원본은 그대로 두고 중복 없이 n개를 뽑아 새 리스트를 돌려줍니다. 문제 수 선택에 맞아서 썼습니다.
 - **`state.json`이 깨지면?** 원본을 `state.json.corrupt`로 옮겨 두고 기본 데이터로 새로 시작합니다.
+- **기본 문제를 바꾸면 예전 저장 파일은요?** 파일에 기본 문제 버전을 같이 저장해 두었다가, 버전이 낮으면 기본 문제만 새 것으로 바꿉니다. 직접 추가한 문제와 점수는 그대로입니다.
 </details>

@@ -6,6 +6,20 @@
 """
 from quiz import Quiz
 
+# 기본 문제 세트의 버전. 기본 문제를 바꿀 때마다 1씩 올린다.
+# 예전 버전으로 저장된 state.json 을 읽으면 기본 문제만 자동으로 새 것으로 바꾼다 (QuizGame.load 참고).
+DEFAULT_VERSION = 2
+
+# 버전 1(개발 입문 상식 6문제)의 기본 문제. 자동 교체할 때 이 문제들은 빼고, 사용자가 직접 추가한 문제는 남긴다.
+OLD_DEFAULT_QUESTIONS = {
+    "Python의 창시자는?",
+    "Python 리스트의 맨 뒤에 요소를 추가하는 메서드는?",
+    "원격 저장소를 내 컴퓨터로 통째로 복제하는 Git 명령은?",
+    "Docker 이미지로부터 만들어진 '실행 중인 인스턴스'를 부르는 말은?",
+    "Python에서 '키-값 쌍'으로 데이터를 저장하는 자료형은?",
+    "컨테이너의 80번 포트를 호스트의 8080번 포트로 연결하는 docker run 옵션은?",
+}
+
 DEFAULT_QUIZ_DATA = [
     {"question": "터미널에서 main.py 를 실행하는 명령어와 파이썬 버전을 확인하는 명령어를 순서대로 쓴 것은?",
      "choices": ["python run main.py / python -V", "python main.py / python -v", "main.py python / python version", "python main.py / python -V"], "answer": 4, "hint": "파일을 실행할 때와 버전을 볼 때 명령이 어떻게 달라지는지, 대문자·소문자도 함께 설명해 보세요."},
