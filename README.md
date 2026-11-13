@@ -27,8 +27,8 @@
 | Git 버전 | `git --version` | git version 2.56.0.windows.4 |
 | Git 사용자 설정 | `git config --global user.name` / `user.email` | kwork0828 / kwork0828@gmail.com |
 
-**Git 사용자 설정** (이 PC에서 커밋할 때 기록될 이름과 이메일 지정)
-![Git 설정](docs/screenshots/env_git_config.png)
+**개발 환경 확인 화면** (Python 버전 → Git 버전 → Git 사용자 이름·이메일 설정)
+![개발 환경 설정](docs/screenshots/env_setup.png)
 
 <details>
 <summary>🎤 설명 노트</summary>
@@ -522,8 +522,7 @@ def ask_int(prompt, low, high, allow=()):
 | | `git log --oneline --graph` 스크린샷 | ✅ | 10장 |
 | | 실행 결과 스크린샷 (추가/목록/플레이/점수) | ✅ | 9장 |
 | | 개발 환경 설정 (Python 버전, Git 설정) | ✅ | 1장 "개발 환경 설정" 표, `docs/logs/env.log` |
-| | 개발 환경 설정 스크린샷 (Git 설정) | ✅ | 1장, `docs/screenshots/env_git_config.png` |
-| | 개발 환경 설정 스크린샷 (Python·Git 버전) | ⬜ 추가 예정 | `docs/screenshots/env_python.png`, `env_git_version.png` |
+| | 개발 환경 설정 스크린샷 (Python 버전, Git 버전, Git 설정) | ✅ | 1장, `docs/screenshots/env_setup.png` |
 | 보너스 | 랜덤 / 문제 수 선택 / 힌트+감점 / 삭제 / 기록 | ✅ | 4장 표 |
 | 추가 | 어디서든 한 단계 뒤로가기 (`ESC` / `b`) | ✅ | `inputs.GoBack`, `QuizGame.add_quiz`, 9장 "뒤로가기" 화면 |
 
