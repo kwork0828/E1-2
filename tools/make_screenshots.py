@@ -112,8 +112,9 @@ def main() -> None:
     shots["score"] = ("점수 확인 / 점수 기록", run(tmp, ["4", "6", "7"]))
     shots["restart"] = ("프로그램 재시작 후 데이터 유지 (저장된 데이터 불러오기)", run(tmp, ["3", "7"]))
     shots["delete"] = ("퀴즈 삭제 (취소 / 범위 밖 / 방금 추가한 50번 삭제)", run(tmp, ["5", "0", "5", "99", "50", "7"]))
-    shots["back"] = ("뒤로가기 (퀴즈 풀기 도중 / 퀴즈 추가 도중에 b)", run(tmp, [
-        "1", "3", "b", "2", "Python 리스트 길이를 구하는 함수는?", "b", "7"]))
+    # 캡처 도구는 키를 직접 누를 수 없어 ESC 대신 같은 동작을 하는 b 를 입력한다
+    shots["back"] = ("뒤로가기 ESC(=b): 풀기 도중 → 메뉴 / 추가 중에는 한 칸씩 뒤로 / 메뉴에서는 안내", run(tmp, [
+        "1", "3", "b", "2", "Python 리스트 길이를 구하는 함수는?", "len()", "b", "b", "b", "b", "7"]))
     if "--git-log" in sys.argv:  # 최종 커밋 직전의 실제 git 그래프
         log = subprocess.run(["git", "--no-pager", "log", "--oneline", "--graph", "--all"], cwd=ROOT,
                              capture_output=True, text=True, encoding="utf-8").stdout.strip()
