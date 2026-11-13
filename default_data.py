@@ -1,8 +1,14 @@
-"""기본 퀴즈 데이터. 주제: 2주차 시험 대비 (Python / 예외 / 클래스 / JSON / Git / Docker 복습).
+"""기본 퀴즈 49문제 (처음 실행할 때 주는 '기본 카드 묶음').
 
-주제 선정 이유: 2주차 시험 공부 자료(docs/week2_study.md)의 개념마다 한 문제씩 직접 만들어,
-이 게임을 풀면서 시험 범위를 한 바퀴 복습하고 동료에게 말로 설명하는 연습도 할 수 있기 때문이다.
-정답이 자료에 분명히 나와 있어 객관식으로 만들기 좋다.
+주제: 2주차 시험 대비 (Python / 예외 / 클래스 / JSON / Git / Docker 복습)
+선정 이유: 2주차 시험 공부 자료(docs/week2_study.md)의 개념마다 한 문제씩 만들어,
+          게임을 하면서 시험 범위를 복습하고 동료에게 설명하는 연습도 할 수 있게 했다.
+
+문제 한 개의 모양 (딕셔너리)
+  {"question": "문제", "choices": ["보기1", "보기2", "보기3", "보기4"], "answer": 정답번호(1~4), "hint": "힌트"}
+
+기본 문제를 고치거나 바꿀 때는 아래 DEFAULT_VERSION 을 1 올리면,
+예전에 저장된 state.json 도 다음 실행 때 기본 문제가 자동으로 새 것으로 바뀐다.
 """
 from quiz import Quiz
 
@@ -123,5 +129,5 @@ DEFAULT_QUIZ_DATA = [
 
 
 def create_default_quizzes() -> list:
-    """기본 데이터를 Quiz 인스턴스 리스트로 만든다."""
+    """위의 딕셔너리 49개를 Quiz 객체 49개로 바꿔 돌려준다."""
     return [Quiz.from_dict(item) for item in DEFAULT_QUIZ_DATA]
