@@ -5,7 +5,7 @@ import random
 from datetime import datetime
 from pathlib import Path
 
-from default_data import create_default_quizzes
+from default_data import DEFAULT_VERSION, OLD_DEFAULT_QUESTIONS, create_default_quizzes
 from inputs import GoBack, QuitGame, ask, ask_int, ask_text
 from quiz import Quiz
 from ui import (INTERACTIVE, box_bottom, box_line, box_mid, box_top, clear, error, note, pad, paint,
@@ -158,7 +158,17 @@ class QuizGame:
 
     # ---------- 파일 저장/불러오기 (state.json, UTF-8) ----------
     def to_state(self) -> dict:
-        return {"quizzes": [q.to_dict() for q in self.quizzes], "best_score": self.best_score, "history": self.history}
+        return {"default_version": DEFAULT_VERSION, "quizzes": [q.to_dict() for q in self.quizzes],
+                "best_score": self.best_score, "history": self.history}
+
+    @staticmethod
+    def upgrade_defaults(quizzes: list) -> list:
+        """예전 기본 문제를 새 기본 문제로 바꾼다. 사용자가 직접 추가한 문제는 뒤에 그대로 남긴다."""
+        defaults = create_default_quizzes()
+        default_questions = {q.question for q in defaults}
+        user_added = [q for q in quizzes
+                      if q.question not in OLD_DEFAULT_QUESTIONS and q.question not in default_questions]
+        return defaults + user_added
 
     def save(self, path: Path = None) -> None:
         """현재 상태를 JSON으로 저장한다. 임시 파일에 쓴 뒤 교체해 저장 도중 끊겨도 원본이 깨지지 않게 한다."""
@@ -197,6 +207,13 @@ class QuizGame:
                 pass
             game = cls()
             game.save(path)
+            return game
+        version = data.get("default_version", 1)  # 이 키가 없는 예전 파일은 버전 1
+        if not isinstance(version, int) or version < DEFAULT_VERSION:
+            quizzes = cls.upgrade_defaults(quizzes)
+            game = cls(quizzes, best, history)
+            game.save(path)  # 바꾼 결과를 바로 저장 → 다음 실행부터는 다시 바꾸지 않는다
+            note(f"🔄 기본 퀴즈가 새 버전으로 바뀌어 자동으로 교체했습니다. (퀴즈 {len(quizzes)}개, 점수·기록은 그대로)")
             return game
         score_text = "없음" if best is None else f"{best}점"
         print(f"📂 저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고점수 {score_text})")
