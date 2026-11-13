@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from default_data import create_default_quizzes
-from inputs import QuitGame, ask_int, ask_text
+from inputs import GoBack, QuitGame, ask_int, ask_text
 from quiz import Quiz
 
 LINE = "=" * 40
@@ -31,6 +31,7 @@ class QuizGame:
         for number, title in enumerate(self.MENU_ITEMS, 1):
             print(f"{number}. {title}")
         print(LINE)
+        print("※ 어느 화면에서든 b 를 입력하면 메인 메뉴로 돌아갑니다.")
 
     # ---------- 기능 ----------
     def play(self) -> None:
@@ -43,7 +44,7 @@ class QuizGame:
             return
         available = len(self.quizzes)
         # 보너스: 문제 수 선택 + 랜덤 출제 (random.sample은 중복 없이 무작위로 고른다)
-        count = available if available == 1 else ask_int(f"풀 문제 수를 선택하세요 (1-{available}): ", 1, available)
+        count = available if available == 1 else ask_int(f"풀 문제 수를 선택하세요 (1-{available}, 뒤로: b): ", 1, available)
         selected = random.sample(self.quizzes, count)
         total = count
         per_question = 100 / total
@@ -57,9 +58,9 @@ class QuizGame:
             used_hint = False
             while True:
                 if quiz.hint and not used_hint:
-                    user_answer = ask_int("정답 입력 (힌트 보기: h): ", 1, Quiz.CHOICE_COUNT, allow=("h",))
+                    user_answer = ask_int("정답 입력 (힌트: h, 뒤로: b): ", 1, Quiz.CHOICE_COUNT, allow=("h",))
                 else:
-                    user_answer = ask_int("정답 입력: ", 1, Quiz.CHOICE_COUNT)
+                    user_answer = ask_int("정답 입력 (뒤로: b): ", 1, Quiz.CHOICE_COUNT)
                 if user_answer == "h":
                     print(f"💡 힌트: {quiz.hint}\n   (힌트를 쓰면 이 문제 배점이 절반이 됩니다)")
                     used_hint = True
@@ -88,7 +89,7 @@ class QuizGame:
 
     def add_quiz(self) -> None:
         """퀴즈 추가: 문제, 선택지 4개, 정답 번호를 입력받아 등록한다."""
-        print("\n📌 새로운 퀴즈를 추가합니다.\n")
+        print("\n📌 새로운 퀴즈를 추가합니다. (중간에 b 를 입력하면 저장하지 않고 메뉴로 돌아갑니다)\n")
         question = ask_text("문제를 입력하세요: ")
         choices = [ask_text(f"선택지 {i}: ") for i in range(1, Quiz.CHOICE_COUNT + 1)]
         answer = ask_int(f"정답 번호 (1-{Quiz.CHOICE_COUNT}): ", 1, Quiz.CHOICE_COUNT)
@@ -120,7 +121,7 @@ class QuizGame:
             print("⚠️ 삭제할 퀴즈가 없습니다.")
             return
         self.show_list()
-        number = ask_int("삭제할 퀴즈 번호 (취소: 0): ", 0, len(self.quizzes))
+        number = ask_int("삭제할 퀴즈 번호 (취소: 0, 뒤로: b): ", 0, len(self.quizzes))
         if number == 0:
             print("삭제를 취소했습니다.")
             return
@@ -192,11 +193,14 @@ class QuizGame:
         try:
             while True:
                 self.print_menu()
-                choice = ask_int("선택: ", 1, exit_number)
-                if choice == exit_number:
-                    print("👋 게임을 종료합니다.")
-                    break
-                handlers[choice]()
+                try:
+                    choice = ask_int("선택: ", 1, exit_number)
+                    if choice == exit_number:
+                        print("👋 게임을 종료합니다.")
+                        break
+                    handlers[choice]()
+                except GoBack:  # 메뉴/풀기/추가/삭제 어디서든 b → 진행 중이던 작업은 반영하지 않고 메뉴로
+                    print("↩️ 메인 메뉴로 돌아갑니다. (진행 중이던 내용은 반영되지 않습니다)")
         except QuitGame:
             pass
         finally:
