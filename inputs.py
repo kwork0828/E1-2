@@ -5,6 +5,18 @@
 """
 
 
+from ui import warn
+
+BACK_WORDS = ("b", "뒤로")  # 어느 입력에서든 이 값을 넣으면 메뉴로 돌아간다
+
+
+class GoBack(Exception):
+    """사용자가 뒤로가기(b)를 입력했음을 알리는 예외.
+
+    퀴즈 풀기/추가/삭제 도중 어디서든 발생할 수 있고, QuizGame.run 이 받아 메인 메뉴로 돌아간다.
+    """
+
+
 class QuitGame(Exception):
     """Ctrl+C(KeyboardInterrupt) 또는 입력 스트림 종료(EOFError)를 알리는 예외.
 
@@ -13,12 +25,15 @@ class QuitGame(Exception):
 
 
 def ask(prompt: str) -> str:
-    """한 줄을 입력받아 앞뒤 공백을 제거해 돌려준다."""
+    """한 줄을 입력받아 앞뒤 공백을 제거해 돌려준다. 뒤로가기(b)면 GoBack 을 발생시킨다."""
     try:
-        return input(prompt).strip()
+        text = input(prompt).strip()
     except (KeyboardInterrupt, EOFError):
         print("\n입력이 중단되었습니다. 안전하게 종료합니다.")
         raise QuitGame
+    if text.lower() in BACK_WORDS:
+        raise GoBack
+    return text
 
 
 def ask_text(prompt: str) -> str:
@@ -27,7 +42,7 @@ def ask_text(prompt: str) -> str:
         text = ask(prompt)
         if text:
             return text
-        print("⚠️ 빈 입력입니다. 내용을 입력하세요.")
+        warn("⚠️ 빈 입력입니다. 내용을 입력하세요.")
 
 
 def ask_int(prompt: str, low: int, high: int, allow: tuple = ()):
@@ -38,16 +53,16 @@ def ask_int(prompt: str, low: int, high: int, allow: tuple = ()):
     while True:
         raw = ask(prompt)
         if raw == "":
-            print(f"⚠️ 빈 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
+            warn(f"⚠️ 빈 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
             continue
         if raw.lower() in allow:
             return raw.lower()
         try:
             number = int(raw)
         except ValueError:
-            print(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
+            warn(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
             continue
         if not low <= number <= high:
-            print(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
+            warn(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
             continue
         return number
