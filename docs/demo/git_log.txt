@@ -1,6 +1,13 @@
-* 7deeb60 Docs: README 장별 구분선과 설명 노트, 시연 예시, 뒤로가기 내용 추가
-* 9d2cb8b Docs: 실행 화면을 49문제·뒤로가기 기준으로 다시 캡처하고 뒤로가기 화면 추가
-* 6a5e7af Feat: 어느 입력에서든 b 를 입력하면 메인 메뉴로 돌아가는 뒤로가기 추가
+*   c85b620 merge: 뒤로가기, 화면 개선(ui.py), README 설명 노트를 main에 병합
+|\  
+| * f8b48d6 Docs: README에 화면 개선(ui.py) 설명과 설계 고민 추가
+| * be79038 Feat: 색상·테두리·진행 막대로 화면 개선(ui.py), 직접 실행 시 화면 정리
+| * bde6f79 Docs: git log 커밋 그래프 캡처 갱신
+| * 7deeb60 Docs: README 장별 구분선과 설명 노트, 시연 예시, 뒤로가기 내용 추가
+| * 9d2cb8b Docs: 실행 화면을 49문제·뒤로가기 기준으로 다시 캡처하고 뒤로가기 화면 추가
+| * 6a5e7af Feat: 어느 입력에서든 b 를 입력하면 메인 메뉴로 돌아가는 뒤로가기 추가
+* | 48cefc3 Update README.md
+|/  
 *   2b174d3 merge: feat/week2-exam-quiz 브랜치를 main에 병합(시험 대비 기본 퀴즈 49문제, 추가 즉시 저장)
 |\  
 | * e8fa957 Docs: README 퀴즈 주제와 문제 수, state.json 안내 수정
