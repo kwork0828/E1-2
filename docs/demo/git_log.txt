@@ -1,3 +1,8 @@
+*   b5960c5 merge: 기본 문제 자동 교체 기능을 main에 병합
+|\  
+| * 99c539d Feat: 예전 기본 문제로 저장된 state.json은 기본 문제만 자동 교체(사용자 퀴즈·점수 유지)
+|/  
+* d246633 Docs: 병합 후 git log 커밋 그래프 캡처 갱신
 *   c85b620 merge: 뒤로가기, 화면 개선(ui.py), README 설명 노트를 main에 병합
 |\  
 | * f8b48d6 Docs: README에 화면 개선(ui.py) 설명과 설계 고민 추가
