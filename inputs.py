@@ -5,6 +5,8 @@
 """
 
 
+from ui import warn
+
 BACK_WORDS = ("b", "뒤로")  # 어느 입력에서든 이 값을 넣으면 메뉴로 돌아간다
 
 
@@ -40,7 +42,7 @@ def ask_text(prompt: str) -> str:
         text = ask(prompt)
         if text:
             return text
-        print("⚠️ 빈 입력입니다. 내용을 입력하세요.")
+        warn("⚠️ 빈 입력입니다. 내용을 입력하세요.")
 
 
 def ask_int(prompt: str, low: int, high: int, allow: tuple = ()):
@@ -51,16 +53,16 @@ def ask_int(prompt: str, low: int, high: int, allow: tuple = ()):
     while True:
         raw = ask(prompt)
         if raw == "":
-            print(f"⚠️ 빈 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
+            warn(f"⚠️ 빈 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
             continue
         if raw.lower() in allow:
             return raw.lower()
         try:
             number = int(raw)
         except ValueError:
-            print(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
+            warn(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
             continue
         if not low <= number <= high:
-            print(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
+            warn(f"⚠️ 잘못된 입력입니다. {low}-{high} 사이의 숫자를 입력하세요.")
             continue
         return number

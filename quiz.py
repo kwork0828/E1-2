@@ -1,4 +1,5 @@
 """Quiz 클래스: 퀴즈 1개(문제, 선택지 4개, 정답 번호)를 표현한다."""
+from ui import paint
 
 
 class Quiz:
@@ -20,12 +21,12 @@ class Quiz:
 
     def show(self, number: int = None) -> None:
         """문제와 선택지를 출력한다."""
-        title = f"[문제 {number}]" if number is not None else "[문제]"
-        print(title)
-        print(self.question)
+        if number is not None:
+            print(paint(f"[문제 {number}]", "cyan"))
+        print(paint("Q. " + self.question, "bold"))
         print()
         for index, choice in enumerate(self.choices, 1):
-            print(f"{index}. {choice}")
+            print(f"   {paint(index, 'yellow', 'bold')}) {choice}")
         print()
 
     def is_correct(self, user_answer: int) -> bool:
